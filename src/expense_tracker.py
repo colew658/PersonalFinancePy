@@ -2,6 +2,9 @@
 
 import pandas as pd
 
+from utils.file_helper import load_yaml
+from utils.validation import validate_excel
+
 
 class ExpenseTracker:
     """
@@ -40,14 +43,17 @@ class ExpenseTracker:
         self.excel_path = excel_path
         self.expense_sheet = expense_sheet
         self.budget_sheet = budget_sheet
+        self.dtypes_dict = load_yaml("../configs/data_schema.yaml")
+        self.expense_log_dtypes = self.dtypes_dict["EXPENSE_LOG"]
+        self.budget_dtypes = self.dtypes_dict["BUDGET"]
 
-        self.expense_log = pd.read_excel(
-            self.excel_path,
-            sheet_name=self.expense_sheet,
+        self.expense_log = validate_excel(
+            pd.read_excel(self.excel_path, sheet_name=self.expense_sheet),
+            self.expense_log_dtypes,
         )
-        self.budget = pd.read_excel(
-            self.excel_path,
-            sheet_name=self.budget_sheet,
+        self.budget = validate_excel(
+            pd.read_excel(self.excel_path, sheet_name=self.budget_sheet),
+            self.budget_dtypes,
         )
 
     def get_expense_log(self) -> pd.DataFrame:
