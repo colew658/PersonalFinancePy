@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools", "setuptools_scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "PersonalFinancePy"
+version = "0.1.0"
+description = "A personal finance tool"
+authors = [
+    {name = "Cole Wagner"}
+    ]
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = ["Programming Language :: Python :: 3 :: Only"]
+dependencies = [
+    "pandas>=2.0.0",
+    "openpyxl>=3.0.0",
+    "pytest>=8.0.0",
+    "ruff>=0.8.0",
+    "pre-commit>=4.0.0",
+    "pre-commit-hooks>=4.0.0",
+    "ipykernel>=6.0.0",
+]
+
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["*"]
+
+[tool.pytest.ini_options]
+addopts = ["--ignore=venv"]
+pythonpath = ["src", "."]
+testpaths = ["tests"]
+
+[tool.ruff]
+extend-include = ["*.ipynb"]
+fix = true
+indent-width = 4
+line-length = 75
+show-fixes = true
+preview = true
+unsafe-fixes = true
+
+[tool.ruff.format]
+docstring-code-format = true
+docstring-code-line-length = "dynamic"
+indent-style = "space"
+line-ending = "auto"
+quote-style = "double"
+
+[tool.ruff.lint]
+extend-select = ["ALL"]
+fixable = ["ALL"]
+ignore = ["D104", "CPY001", "S101", "D203", "D212"]
