@@ -1,0 +1,12 @@
+EXPENSE_LOG:
+  date: "datetime64[ns]"
+  category: "object"
+  subcategory: "object"
+  amount: "float64"
+  payment_type: "object"
+  note: "object"
+
+BUDGET:
+  category: "object"
+  subcategory: "object"
+  amount: "float64"
