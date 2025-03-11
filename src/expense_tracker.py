@@ -18,7 +18,10 @@ class ExpenseTracker:
     """
 
     def __init__(
-        self, excel_path: str, expense_sheet: str, budget_sheet: str
+        self,
+        excel_path: str,
+        expense_sheet: str,
+        budget_sheet: str,
     ) -> None:
         """Initialize the ExpenseTracker object.
 
@@ -41,10 +44,12 @@ class ExpenseTracker:
         self.budget_sheet = budget_sheet
 
         self.expense_log = pd.read_excel(
-            self.excel_path, sheet_name=self.expense_sheet
+            self.excel_path,
+            sheet_name=self.expense_sheet,
         )
         self.budget = pd.read_excel(
-            self.excel_path, sheet_name=self.budget_sheet
+            self.excel_path,
+            sheet_name=self.budget_sheet,
         )
 
     def get_expense_log(self) -> pd.DataFrame:
