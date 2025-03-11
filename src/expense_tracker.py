@@ -4,7 +4,8 @@ import pandas as pd
 
 
 class ExpenseTracker:
-    """Expense Tracker Object.
+    """
+    Expense Tracker Object.
 
     Parameters
     ----------
@@ -23,7 +24,8 @@ class ExpenseTracker:
         expense_sheet: str,
         budget_sheet: str,
     ) -> None:
-        """Initialize the ExpenseTracker object.
+        """
+        Initialize the ExpenseTracker object.
 
         Parameters
         ----------
@@ -33,10 +35,6 @@ class ExpenseTracker:
             Name of the sheet containing the expense log.
         budget_sheet : str
             Name of the sheet containing the budgeted amounts per category.
-
-        Returns
-        -------
-        None
 
         """
         self.excel_path = excel_path
@@ -53,7 +51,8 @@ class ExpenseTracker:
         )
 
     def get_expense_log(self) -> pd.DataFrame:
-        """Return the expense log.
+        """
+        Return the expense log.
 
         Returns
         -------
@@ -64,7 +63,8 @@ class ExpenseTracker:
         return self.expense_log
 
     def get_budget(self) -> pd.DataFrame:
-        """Return the budget.
+        """
+        Return the budget.
 
         Returns
         -------
