@@ -79,3 +79,42 @@ class ExpenseTracker:
 
         """
         return self.budget
+
+    def get_expense_report(self) -> pd.DataFrame:
+        """
+        Return an expense report grouped by category and subcategory.
+
+        Returns
+        -------
+        pd.DataFrame
+            Expense report.
+
+        """
+        # Calculate total amount spent per category and subcategory
+        self.expense_log["total_amount_spent"] = self.expense_log.groupby([
+            "category",
+            "subcategory",
+        ])["amount"].transform("sum")
+
+        # Create expense_report
+        self.expense_report = (
+            self.expense_log.merge(
+                self.budget,
+                on=["category", "subcategory"],
+                how="left",
+            )
+            # Drop transaction details
+            .drop(columns=["date", "amount", "payment_type", "note"])
+            # Sort by category and subcategory
+            .sort_values(
+                by=["category", "subcategory"],
+            )
+        )
+
+        # Calculate difference between budgeted and spent
+        self.expense_report["difference"] = (
+            self.expense_report["amount_budgeted"]
+            - self.expense_report["total_amount_spent"]
+        )
+
+        return self.expense_report

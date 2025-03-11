@@ -9,4 +9,4 @@ EXPENSE_LOG:
 BUDGET:
   category: "object"
   subcategory: "object"
-  amount: "float64"
+  amount_budgeted: "float64"
