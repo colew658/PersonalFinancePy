@@ -1,9 +1,13 @@
 """Expense Tracker Object."""
 
+from pathlib import Path
+
 import pandas as pd
 
 from utils.file_helper import load_yaml
 from utils.validation import validate_excel
+
+PARENT_DIR = Path(__file__).resolve().parent.parent
 
 
 class ExpenseTracker:
@@ -43,7 +47,8 @@ class ExpenseTracker:
         self.excel_path = excel_path
         self.expense_sheet = expense_sheet
         self.budget_sheet = budget_sheet
-        self.dtypes_dict = load_yaml("../configs/data_schema.yaml")
+        config_path = f"{PARENT_DIR}/configs/data_schema.yaml"
+        self.dtypes_dict = load_yaml(config_path)
         self.expense_log_dtypes = self.dtypes_dict["EXPENSE_LOG"]
         self.budget_dtypes = self.dtypes_dict["BUDGET"]
 
@@ -90,8 +95,13 @@ class ExpenseTracker:
             Expense report.
 
         """
+        self.expense_log["month"] = self.expense_log[
+            "date"
+        ].dt.month_name()
+
         # Calculate total amount spent per category and subcategory
         self.expense_log["total_amount_spent"] = self.expense_log.groupby([
+            "month",
             "category",
             "subcategory",
         ])["amount"].transform("sum")
@@ -107,7 +117,7 @@ class ExpenseTracker:
             .drop(columns=["date", "amount", "payment_type", "note"])
             # Sort by category and subcategory
             .sort_values(
-                by=["category", "subcategory"],
+                by=["month", "category", "subcategory"],
             )
         )
 
@@ -117,4 +127,14 @@ class ExpenseTracker:
             - self.expense_report["total_amount_spent"]
         )
 
-        return self.expense_report
+        # Reorder columns
+        column_order = [
+            "month",
+            "category",
+            "subcategory",
+            "amount_budgeted",
+            "total_amount_spent",
+            "difference",
+        ]
+
+        return self.expense_report[column_order]
