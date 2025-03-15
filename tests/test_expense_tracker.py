@@ -42,3 +42,34 @@ def test_get_expense_report() -> None:
     pd.testing.assert_frame_equal(
         report.reset_index(drop=True), expected_report
     )
+
+
+def test_split_by_month() -> None:
+    """Test the _split_by_month function."""
+    test_tracker = ExpenseTracker(
+        excel_path="tests/fixtures/example_excel_file.xlsx",
+        budget_sheet="BUDGET",
+        expense_sheet="EXPENSE_LOG",
+    )
+    # Run function
+    test_tracker.create_grouped_report()  # Ensure report is created first
+    result = test_tracker._split_by_month()
+
+    # Check that the function returns a tuple of DataFrames
+    assert isinstance(result, tuple)
+    assert all(isinstance(df, pd.DataFrame) for df in result)
+
+    # Check that each DataFrame corresponds to a unique month
+    expected_months = {"January", "February", "March"}
+    result_months = {df["month"].iloc[0] for df in result if not df.empty}
+
+    assert result_months == expected_months
+
+    # Check that the number of rows in each DataFrame is correct
+    month_counts = (
+        test_tracker.create_grouped_report()["month"]
+        .value_counts()
+        .to_dict()
+    )
+    for df in result:
+        assert len(df) == month_counts[df["month"].iloc[0]]

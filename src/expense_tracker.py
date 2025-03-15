@@ -85,6 +85,22 @@ class ExpenseTracker:
         """
         return self.budget
 
+    def _split_by_month(self) -> tuple[pd.DataFrame, ...]:
+        """
+        Split the grouped expense report by month.
+
+        Returns
+        -------
+        tuple[pd.DataFrame, ...]
+            Tuple of DataFrames, one per month.
+
+        """
+        # Create a list of DataFrames, one for each month
+        return tuple(
+            self.grouped_report[self.grouped_report["month"] == month]
+            for month in self.grouped_report["month"].unique()
+        )
+
     def create_grouped_report(self) -> pd.DataFrame:
         """
         Return an expense report grouped by category and subcategory.
@@ -107,7 +123,7 @@ class ExpenseTracker:
         ])["amount"].transform("sum")
 
         # Create expense_report
-        self.expense_report = (
+        self.grouped_report = (
             self.expense_log.merge(
                 self.budget,
                 on=["category", "subcategory"],
@@ -122,9 +138,9 @@ class ExpenseTracker:
         )
 
         # Calculate difference between budgeted and spent
-        self.expense_report["difference"] = (
-            self.expense_report["amount_budgeted"]
-            - self.expense_report["total_amount_spent"]
+        self.grouped_report["difference"] = (
+            self.grouped_report["amount_budgeted"]
+            - self.grouped_report["total_amount_spent"]
         )
 
         # Reorder columns
@@ -137,4 +153,4 @@ class ExpenseTracker:
             "difference",
         ]
 
-        return self.expense_report[column_order]
+        return self.grouped_report[column_order]
