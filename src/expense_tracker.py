@@ -119,7 +119,7 @@ class ExpenseTracker:
             .sort_values(
                 by=["month", "category", "subcategory"],
             )
-        )
+        ).drop_duplicates()
 
         # Calculate difference between budgeted and spent
         self.grouped_report["difference"] = (
