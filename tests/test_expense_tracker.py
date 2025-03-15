@@ -15,7 +15,7 @@ def test_get_expense_report() -> None:
         expense_sheet="EXPENSE_LOG",
     )
     # Run function
-    report = test_tracker.get_expense_report()
+    report = test_tracker.create_grouped_report()
 
     # Expected data after processing
     expected_report = pd.DataFrame({

@@ -85,7 +85,7 @@ class ExpenseTracker:
         """
         return self.budget
 
-    def get_expense_report(self) -> pd.DataFrame:
+    def create_grouped_report(self) -> pd.DataFrame:
         """
         Return an expense report grouped by category and subcategory.
 
