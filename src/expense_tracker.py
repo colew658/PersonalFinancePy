@@ -154,3 +154,17 @@ class ExpenseTracker:
         ]
 
         return self.grouped_report[column_order]
+
+    def create_split_report(self) -> tuple[pd.DataFrame, ...]:
+        """
+        Return a tuple of DataFrames, one for each month.
+
+        Returns
+        -------
+        tuple[pd.DataFrame, ...]
+            Tuple of DataFrames, one per month.
+
+        """
+        if not hasattr(self, "grouped_report"):
+            self.create_grouped_report()
+        return self._split_by_month()

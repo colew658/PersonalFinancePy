@@ -44,16 +44,15 @@ def test_get_expense_report() -> None:
     )
 
 
-def test_split_by_month() -> None:
-    """Test the _split_by_month function."""
+def test_create_split_report() -> None:
+    """Test the create_split_report() function."""
     test_tracker = ExpenseTracker(
         excel_path="tests/fixtures/example_excel_file.xlsx",
         budget_sheet="BUDGET",
         expense_sheet="EXPENSE_LOG",
     )
     # Run function
-    test_tracker.create_grouped_report()  # Ensure report is created first
-    result = test_tracker._split_by_month()
+    result = test_tracker.create_split_report()
 
     # Check that the function returns a tuple of DataFrames
     assert isinstance(result, tuple)
