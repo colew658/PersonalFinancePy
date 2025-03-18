@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-from utils.data_helper import convert_datetime_to_str
+from utils.data_helper import append_totals_row, convert_datetime_to_str
 
 
 def test_convert_datetime_to_str() -> None:
@@ -39,3 +39,55 @@ def test_convert_datetime_to_str() -> None:
     assert df_converted["str_col"].tolist() == ["a", "b", "c"]
     assert df_converted["num_col"].dtype == test_df["num_col"].dtype
     assert df_converted["str_col"].dtype == test_df["str_col"].dtype
+
+
+def test_append_totals_row() -> None:
+    """
+    Test the append_totals_row function to ensure it correctly appends
+    a totals row to the DataFrame.
+    The totals row should contain the sum of each numeric column
+    and appropriate labels for the other columns.
+    """
+    # Create a sample DataFrame
+    data = pd.DataFrame({
+        "category": ["Food", "Transport"],
+        "subcategory": ["Groceries", "Bus"],
+        "month": ["January", "January"],
+        "total_amount_spent": [100, 50],
+        "amount_budgeted": [120, 60],
+        "difference": [-20, -10],
+    })
+
+    # Expected totals row
+    expected_totals = {
+        "category": "Total",
+        "subcategory": None,
+        "month": None,
+        "total_amount_spent": sum(data["total_amount_spent"]),
+        "amount_budgeted": sum(data["amount_budgeted"]),
+        "difference": sum(data["difference"]),
+    }
+
+    # Call the function
+    result_df = append_totals_row(data)
+
+    # Check if the last row is the totals row
+    totals_row = result_df.iloc[-1]
+    assert totals_row["category"] == expected_totals["category"]
+    assert (
+        totals_row["subcategory"] is expected_totals["subcategory"]
+    )  # Ensure None comparison
+    assert (
+        totals_row["month"] is expected_totals["month"]
+    )  # Ensure None comparison
+    assert (
+        totals_row["total_amount_spent"]
+        == expected_totals["total_amount_spent"]
+    )
+    assert (
+        totals_row["amount_budgeted"] == expected_totals["amount_budgeted"]
+    )
+    assert totals_row["difference"] == expected_totals["difference"]
+
+    # Ensure the row count increased by 1
+    assert len(result_df) == len(data) + 1

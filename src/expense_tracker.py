@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from utils.data_helper import convert_datetime_to_str
+from utils.data_helper import append_totals_row, convert_datetime_to_str
 from utils.file_helper import load_yaml, write_to_excel
 from utils.validation import validate_excel
 
@@ -184,6 +184,14 @@ class ExpenseTracker:
         # Convert datetime columns to string columns
         self.full_report = tuple(
             convert_datetime_to_str(df) for df in self.full_report
+        )
+
+        # Append totals row to monthly reports
+        self.full_report = tuple(
+            append_totals_row(df)
+            if df is not self.expense_log and df is not self.budget
+            else df
+            for df in self.full_report
         )
 
         sheet_names = [
