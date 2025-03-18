@@ -4,7 +4,8 @@ from pathlib import Path
 
 import pandas as pd
 
-from utils.file_helper import load_yaml
+from utils.data_helper import convert_datetime_to_str
+from utils.file_helper import load_yaml, write_to_excel
 from utils.validation import validate_excel
 
 PARENT_DIR = Path(__file__).resolve().parent.parent
@@ -151,7 +152,48 @@ class ExpenseTracker:
         """
         if not hasattr(self, "grouped_report"):
             self.create_grouped_report()
-        return tuple(
+        self.split_report = tuple(
             self.grouped_report[self.grouped_report["month"] == month]
             for month in self.grouped_report["month"].unique()
+        )
+        return self.split_report
+
+    def write_report_to_excel(
+        self,
+        file_path: str,
+    ) -> None:
+        """
+        Write the expense report to an Excel file.
+
+        Parameters
+        ----------
+        file_path : str
+            Path to the output Excel file.
+
+        """
+        if not hasattr(self, "split_report"):
+            self.create_split_report()
+
+        # Append the expense log and budget to the report
+        self.full_report = (
+            self.expense_log,
+            self.budget,
+            *self.split_report,
+        )
+
+        # Convert datetime columns to string columns
+        self.full_report = tuple(
+            convert_datetime_to_str(df) for df in self.full_report
+        )
+
+        sheet_names = [
+            "Expense Log",
+            "Budget",
+            *list(self.grouped_report["month"].unique()),
+        ]
+
+        write_to_excel(
+            df_tuple=self.full_report,
+            file_path=file_path,
+            sheet_names=sheet_names,
         )
