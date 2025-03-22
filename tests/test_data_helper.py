@@ -3,6 +3,7 @@
 import pandas as pd
 
 from utils.data_helper import (
+    append_category_totals,
     append_totals_row,
     convert_datetime_to_str,
     fill_missing_expenses,
@@ -144,3 +145,43 @@ def test_fill_missing_expenses() -> None:
 
     # Assert that result matches expected
     pd.testing.assert_frame_equal(result, expected)
+
+
+def test_append_category_totals() -> None:
+    """
+    Test the append_category_totals function to ensure it correctly
+    appends category totals to the DataFrame.
+    """
+    # Create a sample expense report DataFrame
+    data = {
+        "category": ["Food", "Food", "Transport", "Transport"],
+        "subcategory": ["Groceries", "Dining", "Bus", "Train"],
+        "month": ["Jan", "Jan", "Jan", "Jan"],
+        "amount_budgeted": [200, 150, 50, 100],
+        "total_amount_spent": [180, 140, 60, 90],
+    }
+    expense_report = pd.DataFrame(data)
+
+    # Expected category totals
+    expected_totals = {
+        "category": ["Food", "Transport"],
+        "subcategory": [None, None],
+        "month": [None, None],
+        "amount_budgeted": [350, 150],
+        "total_amount_spent": [320, 150],
+        "difference": [30, 0],
+    }
+    expected_totals_df = pd.DataFrame(expected_totals)
+
+    # Run function
+    result = append_category_totals(expense_report)
+
+    # Extract category totals from result
+    result_totals = result[result["subcategory"].isna()].reset_index(
+        drop=True
+    )
+
+    # Compare expected and actual results
+    pd.testing.assert_frame_equal(
+        result_totals, expected_totals_df, check_dtype=False
+    )

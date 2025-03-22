@@ -25,7 +25,7 @@ def convert_datetime_to_str(df: pd.DataFrame) -> pd.DataFrame:
 
 def append_totals_row(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Append a totals row to a DataFrame.
+    Append an overall totals row to a DataFrame.
 
     Parameters
     ----------
@@ -47,6 +47,35 @@ def append_totals_row(df: pd.DataFrame) -> pd.DataFrame:
         "difference": [df["difference"].sum()],
     })
     return pd.concat([df, totals], ignore_index=True)
+
+
+def append_category_totals(expense_report: pd.DataFrame) -> pd.DataFrame:
+    """
+    Append category totals to a DataFrame.
+
+    Parameters
+    ----------
+    expense_report : pd.DataFrame
+        The DataFrame to which the category totals will be appended.
+
+    Returns
+    -------
+    pd.DataFrame
+        The DataFrame with the category totals appended.
+
+    """
+    # Calculate category totals
+    category_totals = (
+        expense_report.groupby(["category"]).sum().reset_index()
+    )
+    category_totals["subcategory"] = None
+    category_totals["month"] = None
+    category_totals["difference"] = (
+        category_totals["amount_budgeted"]
+        - category_totals["total_amount_spent"]
+    )
+    # Append category totals to the expense report
+    return pd.concat([expense_report, category_totals], ignore_index=True)
 
 
 def fill_missing_expenses(
