@@ -7,6 +7,7 @@ from utils.data_helper import (
     append_totals_row,
     convert_datetime_to_str,
     fill_missing_expenses,
+    place_totals_rows,
 )
 
 
@@ -184,4 +185,69 @@ def test_append_category_totals() -> None:
     # Compare expected and actual results
     pd.testing.assert_frame_equal(
         result_totals, expected_totals_df, check_dtype=False
+    )
+
+
+def test_place_totals_rows() -> None:
+    """
+    Test the place_totals_rows function to ensure it correctly
+    places the totals rows at the end of each category and the overall
+    total at the end of the DataFrame.
+    """
+    # Create a sample unordered expense report DataFrame
+    data = {
+        "category": [
+            "Food",
+            "Food",
+            "Food",
+            "Transport",
+            "Food",
+            "Transport",
+            "Total",
+        ],
+        "subcategory": [
+            "Groceries",
+            "Dining",
+            None,
+            "Bus",
+            "Snacks",
+            None,
+            None,
+        ],
+        "month": ["Jan", "Jan", None, "Jan", "Jan", None, None],
+        "amount": [100, 50, 150, 30, 20, 30, 180],
+    }
+    unordered_df = pd.DataFrame(data)
+
+    # Expected ordered DataFrame
+    expected_data = {
+        "category": [
+            "Food",
+            "Food",
+            "Food",
+            "Food",
+            "Transport",
+            "Transport",
+            "Total",
+        ],
+        "subcategory": [
+            "Groceries",
+            "Dining",
+            "Snacks",
+            None,
+            "Bus",
+            None,
+            None,
+        ],
+        "month": ["Jan", "Jan", "Jan", None, "Jan", None, None],
+        "amount": [100, 50, 20, 150, 30, 30, 180],
+    }
+    expected_df = pd.DataFrame(expected_data)
+
+    # Apply the function
+    sorted_df = place_totals_rows(unordered_df)
+
+    # Check if the output DataFrame matches the expected DataFrame
+    pd.testing.assert_frame_equal(
+        sorted_df, expected_df, check_dtype=False
     )

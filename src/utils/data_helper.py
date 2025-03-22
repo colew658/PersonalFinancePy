@@ -68,6 +68,10 @@ def append_category_totals(expense_report: pd.DataFrame) -> pd.DataFrame:
     category_totals = (
         expense_report.groupby(["category"]).sum().reset_index()
     )
+    # Drop overall total
+    category_totals = category_totals[
+        category_totals["category"] != "Total"
+    ]
     category_totals["subcategory"] = None
     category_totals["month"] = None
     category_totals["difference"] = (
@@ -76,6 +80,67 @@ def append_category_totals(expense_report: pd.DataFrame) -> pd.DataFrame:
     )
     # Append category totals to the expense report
     return pd.concat([expense_report, category_totals], ignore_index=True)
+
+
+def place_totals_rows(expense_report: pd.DataFrame) -> pd.DataFrame:
+    """
+    Place totals rows in the expense report in their correct locations.
+    Category totals are placed below their respective categories,
+    and an overall total is placed at the end.
+
+    Parameters
+    ----------
+    expense_report : pd.DataFrame
+        The expense report with totals rows unordered.
+
+    Returns
+    -------
+    pd.DataFrame
+        The DataFrame with the totals rows in their correct locations.
+
+    """
+    # Identify category total rows
+    category_totals = expense_report[
+        (expense_report["subcategory"].isna())
+        & (expense_report["month"].isna())
+        & (expense_report["category"] != "Total")
+    ]
+
+    # Identify overall total row
+    overall_total = expense_report[
+        (expense_report["category"] == "Total")
+        & (expense_report["subcategory"].isna())
+        & (expense_report["month"].isna())
+    ]
+
+    # Identify non-total rows
+    non_totals = expense_report[
+        ~(
+            expense_report["subcategory"].isna()
+            & expense_report["month"].isna()
+        )
+    ]
+
+    # Create separate DataFrames for each category
+    category_dfs = []
+    category_list = category_totals["category"].unique()
+
+    for cat in category_list:
+        # Filter rows for the current category
+        cat_df = non_totals[(non_totals["category"] == cat)]
+        cat_total = category_totals[category_totals["category"] == cat]
+
+        # Append the category total row to the DataFrame
+        cat_df = pd.concat([cat_df, cat_total], ignore_index=True)
+        category_dfs.append(cat_df)
+
+    # Concatenate all category DataFrames
+    sorted_report = pd.concat(category_dfs, ignore_index=True)
+
+    # Append overall total at the end
+    sorted_report = pd.concat([sorted_report, overall_total])
+
+    return sorted_report.reset_index(drop=True)
 
 
 def fill_missing_expenses(
