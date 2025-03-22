@@ -4,7 +4,11 @@ from pathlib import Path
 
 import pandas as pd
 
-from utils.data_helper import append_totals_row, convert_datetime_to_str
+from utils.data_helper import (
+    append_totals_row,
+    convert_datetime_to_str,
+    fill_missing_expenses,
+)
 from utils.file_helper import load_yaml, write_to_excel
 from utils.validation import validate_excel
 
@@ -116,7 +120,6 @@ class ExpenseTracker:
             )
             # Drop transaction details
             .drop(columns=["date", "amount", "payment_type", "note"])
-            # Sort by category and subcategory
             .sort_values(
                 by=["month", "category", "subcategory"],
             )
@@ -140,22 +143,34 @@ class ExpenseTracker:
 
         return self.grouped_report[column_order]
 
-    def create_split_report(self) -> tuple[pd.DataFrame, ...]:
+    def create_split_report(self) -> list[pd.DataFrame, ...]:
         """
-        Return a tuple of DataFrames, one for each month.
+        Return a list of DataFrames, one for each month.
 
         Returns
         -------
-        tuple[pd.DataFrame, ...]
-            Tuple of DataFrames, one per month.
+        list[pd.DataFrame, ...]
+            List of DataFrames, one per month.
 
         """
         if not hasattr(self, "grouped_report"):
             self.create_grouped_report()
-        self.split_report = tuple(
+        self.split_report = [
             self.grouped_report[self.grouped_report["month"] == month]
             for month in self.grouped_report["month"].unique()
-        )
+        ]
+        # Fill missing expenses with no transactions attached to them
+        for i in range(len(self.split_report)):
+            # Get the month name from the DataFrame
+            month = self.split_report[i]["month"].unique()[0]
+            # Fill missing expenses for the month
+            self.split_report[i] = fill_missing_expenses(
+                self.split_report[i],
+                self.budget,
+                month,
+            ).sort_values(
+                by=["category", "subcategory"],
+            )
         return self.split_report
 
     def write_report_to_excel(

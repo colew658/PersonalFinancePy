@@ -54,8 +54,8 @@ def test_create_split_report() -> None:
     # Run function
     result = test_tracker.create_split_report()
 
-    # Check that the function returns a tuple of DataFrames
-    assert isinstance(result, tuple)
+    # Check that the function returns a list of DataFrames
+    assert isinstance(result, list)
     assert all(isinstance(df, pd.DataFrame) for df in result)
 
     # Check that each DataFrame corresponds to a unique month
@@ -65,10 +65,5 @@ def test_create_split_report() -> None:
     assert result_months == expected_months
 
     # Check that the number of rows in each DataFrame is correct
-    month_counts = (
-        test_tracker.create_grouped_report()["month"]
-        .value_counts()
-        .to_dict()
-    )
     for df in result:
-        assert len(df) == month_counts[df["month"].iloc[0]]
+        assert len(df) == len(test_tracker.budget["subcategory"].unique())

@@ -2,7 +2,11 @@
 
 import pandas as pd
 
-from utils.data_helper import append_totals_row, convert_datetime_to_str
+from utils.data_helper import (
+    append_totals_row,
+    convert_datetime_to_str,
+    fill_missing_expenses,
+)
 
 
 def test_convert_datetime_to_str() -> None:
@@ -91,3 +95,52 @@ def test_append_totals_row() -> None:
 
     # Ensure the row count increased by 1
     assert len(result_df) == len(data) + 1
+
+
+def test_fill_missing_expenses() -> None:
+    """
+    Test the fill_missing_expenses function to ensure it correctly fills
+    missing expenses with budgeted amounts and calculates the difference.
+    """
+    # Sample expense report
+    expense_report = pd.DataFrame({
+        "category": ["Food", "Transport"],
+        "subcategory": ["Groceries", "Bus"],
+        "month": ["March", "March"],
+        "total_amount_spent": [150, 50],
+        "amount_budgeted": [200, 60],
+        "difference": [50, 10],
+    })
+
+    # Sample budget including an additional category
+    budget = pd.DataFrame({
+        "category": ["Food", "Transport", "Entertainment"],
+        "subcategory": ["Groceries", "Bus", "Movies"],
+        "amount_budgeted": [200, 60, 100],
+    })
+
+    month = "March"
+
+    # Call the function
+    result = fill_missing_expenses(expense_report, budget, month)
+
+    # Expected DataFrame after filling missing expenses
+    expected = pd.DataFrame({
+        "category": ["Food", "Transport", "Entertainment"],
+        "subcategory": ["Groceries", "Bus", "Movies"],
+        "month": ["March", "March", "March"],
+        "total_amount_spent": [150, 50, 0],
+        "amount_budgeted": [200, 60, 100],
+        "difference": [50, 10, 100],
+    })
+
+    # Reset index for comparison
+    result = result.sort_values(
+        by=["category", "subcategory"]
+    ).reset_index(drop=True)
+    expected = expected.sort_values(
+        by=["category", "subcategory"]
+    ).reset_index(drop=True)
+
+    # Assert that result matches expected
+    pd.testing.assert_frame_equal(result, expected)

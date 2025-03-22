@@ -47,3 +47,47 @@ def append_totals_row(df: pd.DataFrame) -> pd.DataFrame:
         "difference": [df["difference"].sum()],
     })
     return pd.concat([df, totals], ignore_index=True)
+
+
+def fill_missing_expenses(
+    expense_report: pd.DataFrame,
+    budget: pd.DataFrame,
+    month: str,
+) -> pd.DataFrame:
+    """
+    Fill budgeted expenses with no transactions attached to them.
+
+    Parameters
+    ----------
+    expense_report : pd.DataFrame
+        The expense report for a given month.
+    budget : pd.DataFrame
+        The DataFrame containing the budget for a given month.
+    month : str
+        The month corresponding to the expense report and budget.
+
+    Returns
+    -------
+    pd.DataFrame
+        The DataFrame with missing expenses filled in.
+
+    """
+    # Find categories and subcategories that are in the budget
+    # but not in the expense log
+    missing_expenses = budget[
+        ~budget.set_index(["category", "subcategory"]).index.isin(
+            expense_report.set_index(["category", "subcategory"]).index
+        )
+    ]
+    # Create a new DataFrame with the missing expenses
+    missing_expenses = pd.DataFrame({
+        "category": missing_expenses["category"],
+        "subcategory": missing_expenses["subcategory"],
+        "month": month,
+        "total_amount_spent": [0] * len(missing_expenses),
+        "amount_budgeted": missing_expenses["amount_budgeted"],
+        "difference": missing_expenses["amount_budgeted"],
+    })
+
+    # Append the missing expenses to the expense report
+    return pd.concat([expense_report, missing_expenses], ignore_index=True)
