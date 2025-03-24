@@ -40,7 +40,7 @@ def load_yaml(yaml_path: str) -> dict:
 
 
 def write_to_excel(
-    df_tuple: tuple[pd.DataFrame, ...],
+    df_list: list[pd.DataFrame, ...],
     file_path: str,
     sheet_names: list[str],
 ) -> None:
@@ -49,8 +49,8 @@ def write_to_excel(
 
     Parameters
     ----------
-    df_tuple : tuple[pd.DataFrame, ...]
-        A tuple of DataFrames to be written to the Excel file.
+    df_list : list[pd.DataFrame, ...]
+        A list of DataFrames to be written to the Excel file.
     file_path : str
         The path for the Excel file to be created.
     sheet_names : list[str]
@@ -61,5 +61,5 @@ def write_to_excel(
         file_path,
         engine="openpyxl",
     ) as writer:
-        for df, sheet_name in zip(df_tuple, sheet_names):
+        for df, sheet_name in zip(df_list, sheet_names):
             df.to_excel(writer, sheet_name=sheet_name, index=False)

@@ -226,16 +226,16 @@ class ExpenseTracker:
             self.append_totals_rows()
 
         # Append the expense log and budget to the report
-        self.full_report = (
+        self.full_report = [
             self.expense_log,
             self.budget,
             *self.split_report,
-        )
+        ]
 
         # Convert datetime columns to string columns
-        self.full_report = tuple(
+        self.full_report = [
             convert_datetime_to_str(df) for df in self.full_report
-        )
+        ]
 
         sheet_names = [
             "Expense Log",
