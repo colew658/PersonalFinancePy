@@ -72,7 +72,7 @@ def append_category_totals(expense_report: pd.DataFrame) -> pd.DataFrame:
     category_totals = category_totals[
         category_totals["category"] != "Total"
     ]
-    category_totals["subcategory"] = None
+    category_totals["subcategory"] = "Total"
     category_totals["month"] = None
     category_totals["difference"] = (
         category_totals["amount_budgeted"]
@@ -101,23 +101,17 @@ def place_totals_rows(expense_report: pd.DataFrame) -> pd.DataFrame:
     """
     # Identify category total rows
     category_totals = expense_report[
-        (expense_report["subcategory"].isna())
-        & (expense_report["month"].isna())
-        & (expense_report["category"] != "Total")
+        expense_report["subcategory"] == "Total"
     ]
 
     # Identify overall total row
-    overall_total = expense_report[
-        (expense_report["category"] == "Total")
-        & (expense_report["subcategory"].isna())
-        & (expense_report["month"].isna())
-    ]
+    overall_total = expense_report[expense_report["category"] == "Total"]
 
     # Identify non-total rows
     non_totals = expense_report[
         ~(
-            expense_report["subcategory"].isna()
-            & expense_report["month"].isna()
+            (expense_report["subcategory"] == "Total")
+            | (expense_report["category"] == "Total")
         )
     ]
 

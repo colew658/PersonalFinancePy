@@ -166,7 +166,7 @@ def test_append_category_totals() -> None:
     # Expected category totals
     expected_totals = {
         "category": ["Food", "Transport"],
-        "subcategory": [None, None],
+        "subcategory": ["Total", "Total"],
         "month": [None, None],
         "amount_budgeted": [350, 150],
         "total_amount_spent": [320, 150],
@@ -178,7 +178,7 @@ def test_append_category_totals() -> None:
     result = append_category_totals(expense_report)
 
     # Extract category totals from result
-    result_totals = result[result["subcategory"].isna()].reset_index(
+    result_totals = result[result["subcategory"] == "Total"].reset_index(
         drop=True
     )
 
@@ -208,10 +208,10 @@ def test_place_totals_rows() -> None:
         "subcategory": [
             "Groceries",
             "Dining",
-            None,
+            "Total",
             "Bus",
             "Snacks",
-            None,
+            "Total",
             None,
         ],
         "month": ["Jan", "Jan", None, "Jan", "Jan", None, None],
@@ -234,9 +234,9 @@ def test_place_totals_rows() -> None:
             "Groceries",
             "Dining",
             "Snacks",
-            None,
+            "Total",
             "Bus",
-            None,
+            "Total",
             None,
         ],
         "month": ["Jan", "Jan", "Jan", None, "Jan", None, None],
