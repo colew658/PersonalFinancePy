@@ -8,6 +8,7 @@ from utils.data_helper import (
     convert_datetime_to_str,
     fill_missing_expenses,
     place_totals_rows,
+    sort_month_order,
 )
 
 
@@ -250,4 +251,24 @@ def test_place_totals_rows() -> None:
     # Check if the output DataFrame matches the expected DataFrame
     pd.testing.assert_frame_equal(
         sorted_df, expected_df, check_dtype=False
+    )
+
+
+def test_sort_month_order() -> None:
+    """
+    Test the sort_month_order function to ensure it correctly sorts
+    DataFrames by month.
+    """
+    df_jan = pd.DataFrame({"month": ["January"] * 3, "value": [1, 2, 3]})
+    df_mar = pd.DataFrame({"month": ["March"] * 3, "value": [4, 5, 6]})
+    df_feb = pd.DataFrame({"month": ["February"] * 3, "value": [7, 8, 9]})
+
+    df_list = [df_mar, df_jan, df_feb]
+    sorted_list = sort_month_order(df_list)
+
+    expected_order = ["January", "February", "March"]
+    result_order = [df["month"].iloc[0] for df in sorted_list]
+
+    assert result_order == expected_order, (
+        f"Expected {expected_order} but got {result_order}"
     )

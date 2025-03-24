@@ -1,5 +1,7 @@
 """Utils functions to help with data operations."""
 
+from calendar import month_name
+
 import pandas as pd
 
 
@@ -179,3 +181,26 @@ def fill_missing_expenses(
 
     # Append the missing expenses to the expense report
     return pd.concat([expense_report, missing_expenses], ignore_index=True)
+
+
+def sort_month_order(
+    df_list: list[pd.DataFrame, ...],
+) -> list[pd.DataFrame, ...]:
+    """
+    Sort a list of DataFrames by the month column.
+
+    Parameters
+    ----------
+    df_list : list[pd.DataFrame, ...]
+        The list of DataFrames to be sorted. Each DataFrame must contain
+        a "month" column. The month column should contain the full month
+        name, and all month values should be the same.
+
+    Returns
+    -------
+    list[pd.DataFrame, ...]
+        The sorted list of DataFrames.
+
+    """
+    month_order = {month: i for i, month in enumerate(month_name) if month}
+    return sorted(df_list, key=lambda df: month_order[df["month"].iloc[0]])
