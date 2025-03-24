@@ -188,8 +188,9 @@ class ExpenseTracker:
         """
         if not hasattr(self, "split_report"):
             self.create_split_report()
-            # Store original unmodified split report
-            self.original_split_report = copy.deepcopy(self.split_report)
+
+        # Store original unmodified split report
+        self.original_split_report = copy.deepcopy(self.split_report)
 
         # Reset `split_report` to its original state before modification
         self.split_report = copy.deepcopy(self.original_split_report)
