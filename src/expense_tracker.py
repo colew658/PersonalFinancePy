@@ -1,13 +1,16 @@
 """Expense Tracker Object."""
 
+import copy
 from pathlib import Path
 
 import pandas as pd
 
 from utils.data_helper import (
+    append_category_totals,
     append_totals_row,
     convert_datetime_to_str,
     fill_missing_expenses,
+    place_totals_rows,
 )
 from utils.file_helper import load_yaml, write_to_excel
 from utils.validation import validate_excel
@@ -173,6 +176,38 @@ class ExpenseTracker:
             )
         return self.split_report
 
+    def append_totals_rows(self) -> list[pd.DataFrame, ...]:
+        """
+        Append overall and category-wise totals to the report.
+
+        Returns
+        -------
+        list[pd.DataFrame, ...]
+            List of DataFrames, one per month, with totals rows appended.
+
+        """
+        if not hasattr(self, "split_report"):
+            self.create_split_report()
+            # Store original unmodified split report
+            self.original_split_report = copy.deepcopy(self.split_report)
+
+        # Reset `split_report` to its original state before modification
+        self.split_report = copy.deepcopy(self.original_split_report)
+
+        for i in range(len(self.split_report)):
+            # Append overall totals row
+            self.split_report[i] = append_totals_row(self.split_report[i])
+
+            # Append category-wise totals row
+            self.split_report[i] = append_category_totals(
+                self.split_report[i]
+            )
+
+            # Place totals rows in correct order
+            self.split_report[i] = place_totals_rows(self.split_report[i])
+
+        return self.split_report
+
     def write_report_to_excel(
         self,
         file_path: str,
@@ -187,7 +222,7 @@ class ExpenseTracker:
 
         """
         if not hasattr(self, "split_report"):
-            self.create_split_report()
+            self.append_totals_rows()
 
         # Append the expense log and budget to the report
         self.full_report = (
@@ -199,14 +234,6 @@ class ExpenseTracker:
         # Convert datetime columns to string columns
         self.full_report = tuple(
             convert_datetime_to_str(df) for df in self.full_report
-        )
-
-        # Append totals row to monthly reports
-        self.full_report = tuple(
-            append_totals_row(df)
-            if df is not self.expense_log and df is not self.budget
-            else df
-            for df in self.full_report
         )
 
         sheet_names = [

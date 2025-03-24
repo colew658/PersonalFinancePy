@@ -5,10 +5,9 @@ import pandas as pd
 from expense_tracker import ExpenseTracker
 
 
-def test_get_expense_report() -> None:
-    """Test the get_expense_report method."""
+def test_create_grouped_report() -> None:
+    """Test the create_grouped_report method."""
     # Create an instance of the class
-
     test_tracker = ExpenseTracker(
         excel_path="tests/fixtures/example_excel_file.xlsx",
         budget_sheet="BUDGET",
