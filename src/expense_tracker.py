@@ -1,6 +1,7 @@
 """Expense Tracker Object."""
 
 import copy
+from calendar import month_name
 from pathlib import Path
 
 import pandas as pd
@@ -11,6 +12,7 @@ from utils.data_helper import (
     convert_datetime_to_str,
     fill_missing_expenses,
     place_totals_rows,
+    sort_month_order,
 )
 from utils.file_helper import load_yaml, write_to_excel
 from utils.validation import validate_excel
@@ -174,7 +176,8 @@ class ExpenseTracker:
             ).sort_values(
                 by=["category", "subcategory"],
             )
-        return self.split_report
+            # Sort the list of reports by month.
+        return sort_month_order(self.split_report)
 
     def append_totals_rows(self) -> list[pd.DataFrame, ...]:
         """
@@ -229,7 +232,7 @@ class ExpenseTracker:
         self.full_report = [
             self.expense_log,
             self.budget,
-            *self.split_report,
+            *sort_month_order(self.split_report),
         ]
 
         # Convert datetime columns to string columns
@@ -237,14 +240,19 @@ class ExpenseTracker:
             convert_datetime_to_str(df) for df in self.full_report
         ]
 
+        # Sort the months in the report
+        month_lookup = list(month_name)
+        report_months = self.grouped_report["month"].unique()
+        sorted_months = sorted(report_months, key=month_lookup.index)
+
         sheet_names = [
             "Expense Log",
             "Budget",
-            *list(self.grouped_report["month"].unique()),
+            *sorted_months,
         ]
 
         write_to_excel(
-            df_tuple=self.full_report,
+            df_list=self.full_report,
             file_path=file_path,
             sheet_names=sheet_names,
         )
