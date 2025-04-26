@@ -3,7 +3,7 @@
 import pandas as pd
 import pytest
 
-from utils.validation import validate_excel
+from utils.validation import validate_excel, validate_expenses
 
 
 @pytest.mark.parametrize(
@@ -58,3 +58,39 @@ def test_validate_excel_success() -> None:
     validated_df = validate_excel(test_df, sheet_schema)
     for col, dtype in expected_dtypes.items():
         assert validated_df[col].dtype == dtype
+
+
+def test_validate_expenses_valid() -> None:
+    """Test valid case for validate_expenses() to ensure no output."""
+    expense_df = pd.DataFrame({
+        "category": ["Food", "Transport"],
+        "subcategory": ["Groceries", "Bus"],
+    })
+
+    budget_df = pd.DataFrame({
+        "category": ["Food", "Transport"],
+        "subcategory": ["Groceries", "Bus"],
+    })
+
+    # Should not raise any error
+    validate_expenses(expense_df, budget_df)
+
+
+def test_validate_expenses_invalid() -> None:
+    """Test invalid case for validate_expenses() to ensure proper error."""
+    expense_df = pd.DataFrame({
+        "category": ["Food", "Transport", "Entertainment"],
+        "subcategory": ["Groceries", "Bus", "Movies"],
+    })
+
+    budget_df = pd.DataFrame({
+        "category": ["Food", "Transport"],
+        "subcategory": ["Groceries", "Bus"],
+    })
+
+    with pytest.raises(
+        ValueError, match="Categories or subcategories"
+    ) as exc_info:
+        validate_expenses(expense_df, budget_df)
+
+    assert "Entertainment_Movies" in str(exc_info.value)

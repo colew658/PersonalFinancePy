@@ -50,3 +50,46 @@ def validate_excel(
         raise ValueError(msg) from e
 
     return sheet_df
+
+
+def validate_expenses(
+    expense_df: pd.DataFrame,
+    budget_df: pd.DataFrame,
+) -> pd.DataFrame:
+    """
+    Validate expenses to ensure all expense categories and subcategories
+    have corresponding budgeted amounts.
+
+    Parameters
+    ----------
+    expense_df : pd.DataFrame
+        The DataFrame containing expenses.
+    budget_df : pd.DataFrame
+        The DataFrame containing budgeted amounts.
+
+    Raises
+    ------
+    ValueError
+        If there are categories or subcategories in the expense report
+        that are not present in the budget.
+
+    """
+    tmp_expense_df = expense_df.copy()
+    tmp_budget_df = budget_df.copy()
+    tmp_expense_df["category_subcategory"] = (
+        tmp_expense_df["category"] + "_" + tmp_expense_df["subcategory"]
+    )
+    tmp_budget_df["category_subcategory"] = (
+        tmp_budget_df["category"] + "_" + tmp_budget_df["subcategory"]
+    )
+    missing_categories = tmp_expense_df[
+        ~tmp_expense_df["category_subcategory"].isin(
+            tmp_budget_df["category_subcategory"]
+        )
+    ]["category_subcategory"].unique()
+    if len(missing_categories) > 0:
+        msg = (
+            f"Categories or subcategories in the expense report are not "
+            f"present in the budget: {missing_categories}"
+        )
+        raise ValueError(msg)
