@@ -15,7 +15,7 @@ from utils.data_helper import (
     sort_month_order,
 )
 from utils.file_helper import load_yaml, write_to_excel
-from utils.validation import validate_excel
+from utils.validation import validate_excel, validate_expenses
 
 PARENT_DIR = Path(__file__).resolve().parent.parent
 
@@ -69,6 +69,9 @@ class ExpenseTracker:
         self.budget = validate_excel(
             pd.read_excel(self.excel_path, sheet_name=self.budget_sheet),
             self.budget_dtypes,
+        )
+        validate_expenses(
+            expense_df=self.expense_log, budget_df=self.budget
         )
 
     def get_expense_log(self) -> pd.DataFrame:
