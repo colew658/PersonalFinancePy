@@ -243,6 +243,12 @@ class ExpenseTracker:
             convert_datetime_to_str(df) for df in self.full_report
         ]
 
+        # Remove the month column from monthly reports
+        for i in range(2, len(self.full_report)):
+            self.full_report[i] = self.full_report[i].drop(
+                columns=["month"]
+            )
+
         # Sort the months in the report
         month_lookup = list(month_name)
         report_months = self.grouped_report["month"].unique()
