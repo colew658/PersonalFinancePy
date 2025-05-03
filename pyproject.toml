@@ -22,6 +22,7 @@ dependencies = [
     "ipykernel>=6.0.0",
     "pyyaml>=6.0.0",
     "pathlib>=1.0.0",
+    "xlsxwriter>=3.0.0",
 ]
 
 

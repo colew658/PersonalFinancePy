@@ -45,7 +45,7 @@ def write_to_excel(
     sheet_names: list[str],
 ) -> None:
     """
-    Write a tuple of DataFrames to an Excel file with given sheet names.
+    Write a list of DataFrames to an Excel file with given sheet names.
 
     Parameters
     ----------
@@ -63,3 +63,20 @@ def write_to_excel(
     ) as writer:
         for df, sheet_name in zip(df_list, sheet_names):
             df.to_excel(writer, sheet_name=sheet_name, index=False)
+
+
+def bold_totals(report_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Bold the total rows in the report DataFrame.
+
+    Parameters
+    ----------
+    report_df : pd.DataFrame
+        The report DataFrame containing the total rows.
+
+    Returns
+    -------
+    pd.DataFrame
+        The report DataFrame with bolded total rows.
+
+    """
