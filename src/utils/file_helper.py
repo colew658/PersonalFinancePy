@@ -59,10 +59,41 @@ def write_to_excel(
     """
     with pd.ExcelWriter(
         file_path,
-        engine="openpyxl",
+        engine="xlsxwriter",
     ) as writer:
         for df, sheet_name in zip(df_list, sheet_names):
             df.to_excel(writer, sheet_name=sheet_name, index=False)
+
+
+def convert_dfs_to_workbook(
+    df_list: list[pd.DataFrame, ...],
+    file_path: str,
+    sheet_names: list[str],
+) -> pd.ExcelWriter:
+    """
+    Convert a list of DataFrames to an xlsxwriter workbook.
+
+    Parameters
+    ----------
+    df_list : list[pd.DataFrame, ...]
+        A list of DataFrames to be written to the Excel file.
+    file_path : str
+        The path for the Excel file to be created.
+    sheet_names : list[str]
+        A list of sheet names corresponding to each DataFrame in the tuple.
+
+    Returns
+    -------
+    pd.ExcelWriter
+        An ExcelWriter object containing the DataFrames as sheets.
+
+    """
+    writer = pd.ExcelWriter(file_path, engine="xlsxwriter")
+
+    for df, sheet_name in zip(df_list, sheet_names):
+        df.to_excel(writer, sheet_name=sheet_name, index=False)
+
+    return writer
 
 
 def bold_totals(report_df: pd.DataFrame) -> pd.DataFrame:
