@@ -14,7 +14,11 @@ from utils.data_helper import (
     place_totals_rows,
     sort_month_order,
 )
-from utils.file_helper import load_yaml, write_to_excel
+from utils.file_helper import (
+    bold_totals,
+    convert_dfs_to_workbook,
+    load_yaml,
+)
 from utils.validation import validate_excel, validate_expenses
 
 PARENT_DIR = Path(__file__).resolve().parent.parent
@@ -260,8 +264,13 @@ class ExpenseTracker:
             *sorted_months,
         ]
 
-        write_to_excel(
+        # Convert the DataFrames to an xlsxwriter Workbook
+        report_wb = convert_dfs_to_workbook(
             df_list=self.full_report,
             file_path=file_path,
             sheet_names=sheet_names,
         )
+        # Bold the total rows in the report Workbook
+        report_wb = bold_totals(report_wb)
+        # Save the workbook
+        report_wb.close()

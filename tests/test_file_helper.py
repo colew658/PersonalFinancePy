@@ -8,7 +8,7 @@ import pandas as pd
 import pytest
 import yaml
 
-from utils.file_helper import load_yaml, write_to_excel
+from utils.file_helper import convert_dfs_to_workbook, load_yaml
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
@@ -93,49 +93,29 @@ def test_load_yaml_file_not_found() -> None:
         load_yaml("non_existent_file.yaml")
 
 
-# TODO: Write this test in a way that doesn't require writing to a file.
-# Currently, this test writes to a file and then reads from it.
-# This prevents the pytest pre-commit hook from passing.
-@pytest.mark.skip(
-    reason="This test writes a file, causing pre-commit to fail."
-)
-def test_write_to_excel() -> None:
-    """
-    Test writing multiple DataFrames to an Excel file using the
-    write_to_excel function.
-    """
-    # Define input
-    df1 = pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})
-    df2 = pd.DataFrame({"X": ["a", "b", "c"], "Y": ["d", "e", "f"]})
-    df_tuple = (df1, df2)
+def test_convert_dfs_to_workbook() -> None:
+    """Test the convert_dfs_to_workbook function."""
+    df1 = pd.DataFrame({"A": [1, 2], "B": [3, 4]})
+    df2 = pd.DataFrame({"X": ["foo", "bar"], "Y": ["baz", "qux"]})
+    dfs = [df1, df2]
     sheet_names = ["Sheet1", "Sheet2"]
-    test_file_path = "tests/fixtures/test_write_to_excel.xlsx"
 
-    # Call the function
-    write_to_excel(
-        df_tuple=df_tuple,
-        file_path=test_file_path,
-        sheet_names=sheet_names,
-    )
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmp:
+        file_path = tmp.name
 
-    actual_sheet1 = pd.read_excel(
-        test_file_path, sheet_name=sheet_names[0]
-    )
-    actual_sheet2 = pd.read_excel(
-        test_file_path, sheet_name=sheet_names[1]
-    )
+    # Run the function
+    workbook = convert_dfs_to_workbook(dfs, file_path, sheet_names)
 
-    assert (
-        pd.testing.assert_frame_equal(
-            actual_sheet1,
-            df1,
-        )
-        is None
-    )
-    assert (
-        pd.testing.assert_frame_equal(
-            actual_sheet2,
-            df2,
-        )
-        is None
-    )
+    # Save the file
+    workbook.close()
+
+    # Read the file back in and test contents
+    with pd.ExcelFile(file_path) as xls:
+        assert set(xls.sheet_names) == set(sheet_names)
+
+        for i, sheet in enumerate(sheet_names):
+            df_read = pd.read_excel(xls, sheet_name=sheet)
+            pd.testing.assert_frame_equal(df_read, dfs[i])
+
+    # Clean up
+    Path.unlink(file_path)
