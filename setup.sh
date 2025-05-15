@@ -31,8 +31,11 @@ python3 -m virtualenv venv --python=python${python_version} > /dev/null
 source venv/bin/activate
 log "Virtual environment configured"
 
-log "installing dependencies"
+log "Installing dependencies"
 pip install -e .
+
+log "Reactivating virtual environment w/ dependencies installed"
+deactivate && source venv/bin/activate
 
 log "Installing pre-commit hooks"
 pre-commit install
