@@ -2,6 +2,7 @@
 
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 import pandas as pd
@@ -105,17 +106,18 @@ def test_convert_dfs_to_workbook() -> None:
 
     # Run the function
     workbook = convert_dfs_to_workbook(dfs, file_path, sheet_names)
-
-    # Save the file
     workbook.close()
 
-    # Read the file back in and test contents
-    with pd.ExcelFile(file_path) as xls:
-        assert set(xls.sheet_names) == set(sheet_names)
-
-        for i, sheet in enumerate(sheet_names):
-            df_read = pd.read_excel(xls, sheet_name=sheet)
-            pd.testing.assert_frame_equal(df_read, dfs[i])
-
-    # Clean up
-    Path.unlink(file_path)
+    try:
+        with pd.ExcelFile(file_path) as xls:
+            assert set(xls.sheet_names) == set(sheet_names)
+            for i, sheet in enumerate(sheet_names):
+                df_read = pd.read_excel(xls, sheet_name=sheet)
+                pd.testing.assert_frame_equal(df_read, dfs[i])
+    finally:
+        for _ in range(5):
+            try:
+                Path(file_path).unlink()
+                break
+            except PermissionError:
+                time.sleep(0.1)
