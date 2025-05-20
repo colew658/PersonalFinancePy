@@ -23,7 +23,7 @@ log() {
 # Ensure script is sourced
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     echo "⚠️  Please run this script using 'source setup.sh' so the virtual environment is activated in your current shell."
-    exit 1
+    return 1
 fi
 
 # Parse command-line arguments
@@ -44,6 +44,15 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
+
+# ========================
+# Shell Enforcement
+# ========================
+if [[ -z "$BASH_VERSION" ]]; then
+    echo "⚠️  This script requires Bash. Please run it from a Bash shell using:"
+    echo "   source setup.sh"
+    return 1
+fi
 
 # ========================
 # Cleanup
