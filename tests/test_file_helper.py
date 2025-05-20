@@ -115,6 +115,7 @@ def test_convert_dfs_to_workbook() -> None:
                 df_read = pd.read_excel(xls, sheet_name=sheet)
                 pd.testing.assert_frame_equal(df_read, dfs[i])
     finally:
+        # Give OS time to release the file if needed
         for _ in range(5):
             try:
                 Path(file_path).unlink()

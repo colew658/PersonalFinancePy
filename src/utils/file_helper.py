@@ -96,8 +96,8 @@ def bold_totals(report_wb: xlsxwriter.Workbook) -> xlsxwriter.Workbook:
         # Apply bold format to monthly reports
         if sheet_name in month_name:
             # Get the number of rows in the worksheet
-            num_rows = worksheet.dim_rowmax + 1
+            num_rows = worksheet.dim_rowmax
             # Apply bold format to the last row (total row)
-            worksheet.set_row(num_rows - 1, None, bold_format)
+            worksheet.set_row(num_rows, None, bold_format)
 
     return report_wb
