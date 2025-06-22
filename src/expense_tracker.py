@@ -270,7 +270,14 @@ class ExpenseTracker:
             file_path=file_path,
             sheet_names=sheet_names,
         )
+
         # Bold the total rows in the report Workbook
         report_wb = bold_totals(report_wb)
+
+        # Autofit the columns in the report
+        for sheet_name in report_wb.sheetnames:
+            worksheet = report_wb.get_worksheet_by_name(sheet_name)
+            worksheet.autofit()
+
         # Save the workbook
         report_wb.close()
