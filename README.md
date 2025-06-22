@@ -1,4 +1,10 @@
+# Usage
+An example of this repo's usage is in `demo_notebook.ipynb`.
 
-## [![Repography logo](https://images.repography.com/logo.svg)](https://repography.com) / Structure
-[![Structure](https://images.repography.com/62831619/colew658/PersonalFinancePy/structure/VcjXpbaOG1-Y0F5CnBIrqVqIvVUPsSh_L6La2DFfiR0/1jFejQmq_CcGx5s151SNRCRenq7CIzEL9BKEBeSNqKA_table.svg)](https://github.com/colew658/PersonalFinancePy)
-
+# Contributing
+All contributors must develop within the designated virtual environment which is created by running the `setup.sh` script. This virtual environment installs project dependencies and pre-commit hooks. The `setup.sh` script can be run by the following command:
+```bash
+foo-bar@baz:~/PersonalFinancePy$ source setup.sh
+```
+> [!IMPORTANT]
+This command must be run in a bash terminal (not zsh, powershell, etc.). This ensures the script works properly regardless of your OS.
