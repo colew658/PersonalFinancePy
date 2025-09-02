@@ -44,6 +44,12 @@ class CapitalOneFormatter(BaseFormatter):
             date_cols=["Transaction Date", "Posted Date"],
         )
 
+        if self.cap_one_df is None:
+            self.logger.error(
+                "Failed to read Capital One transaction logs."
+            )
+            return
+
     def format_cap_one_logs(self) -> pd.DataFrame:
         """
         Format the transaction logs for Capital One.
