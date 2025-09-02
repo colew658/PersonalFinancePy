@@ -1,5 +1,7 @@
 """Base transaction log formatter object."""
 
+from __future__ import annotations
+
 import pandas as pd
 
 from utils.file_helper import setup_logging
@@ -33,7 +35,7 @@ class BaseFormatter:
         self,
         schema: dict[str, str],
         date_cols: list[str],
-    ) -> pd.DataFrame:
+    ) -> pd.DataFrame | None:
         """
         Read the transaction logs from the file and return a DataFrame.
 
@@ -47,8 +49,9 @@ class BaseFormatter:
 
         Returns
         -------
-        pd.DataFrame
+        pd.DataFrame | None
             The DataFrame containing the transaction logs.
+            If an error occurs, None is returned.
 
         """
         try:
