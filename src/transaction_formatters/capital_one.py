@@ -4,11 +4,13 @@ import logging
 
 import pandas as pd
 
+from src.transaction_formatters.base_formatter import BaseFormatter
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-class CapitalOneFormatter:
+class CapitalOneFormatter(BaseFormatter):
     """
     Formats transaction logs for Capital One data.
 
@@ -29,30 +31,41 @@ class CapitalOneFormatter:
             The path to the CSV file containing the transaction logs.
 
         """
-        self.file_path = file_path
+        super().__init__(file_path)
         self.logger = logger
+        self.cap_one_df = self._read_transaction_logs(
+            schema={
+                "Transaction Date": "datetime64[ns]",
+                "Posted Date": "datetime64[ns]",
+                "Card No.": "Int64",
+                "Description": "str",
+                "Category": "str",
+                "Debit": "float64",
+                "Credit": "float64",
+            },
+            date_format="%Y-%m-%d",
+        )
 
-    def _read_cap_one_csv(self) -> pd.DataFrame:
+    def format_cap_one_logs(self, keep_credits: str) -> pd.DataFrame:
         """
-        Read the Capital One CSV file and return a DataFrame.
+        Format the transaction logs for Capital One.
+
+        Parameters
+        ----------
+        keep_credits : str
+            Whether to keep credit transactions in the DataFrame (y/n).
 
         Returns
         -------
         pd.DataFrame
-            The DataFrame containing the transaction logs.
+            The formatted DataFrame containing the transaction logs.
 
         """
-        schema = {
-            "Transaction Date": "datetime64[ns]",
-            "Posted Date": "datetime64[ns]",
-            "Card No.": "Int64",
-            "Description": "str",
-            "Category": "str",
-            "Debit": "float64",
-            "Credit": "float64",
-        }
-        try:
-            return pd.read_csv(self.file_path, dtype=schema)
-        except Exception:
-            self.logger.exception("Error reading Capital One CSV")
-            return pd.DataFrame(columns=schema.keys())
+        if keep_credits == "n":
+            # Remove credit transactions
+            self.cap_one_df = self.cap_one_df[
+                (self.cap_one_df["Credit"] == 0)
+                | (self.cap_one_df["Credit"].isna())
+            ]
+
+        return self.cap_one_df
