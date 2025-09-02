@@ -83,10 +83,7 @@ class CapitalOneFormatter(BaseFormatter):
         self.cap_one_df = self.cap_one_df.rename(
             columns={
                 "Posted Date": "date",
-                "category": "category",
-                "subcategory": "subcategory",
                 "Debit": "amount",
-                "payment_type": "payment_type",
                 "Description": "note",
             }
         )
