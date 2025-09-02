@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-from src.utils.file_handler import setup_logging
+from utils.file_helper import setup_logging
 
 
 class BaseFormatter:
@@ -30,7 +30,9 @@ class BaseFormatter:
         self.log = setup_logging()
 
     def _read_transaction_logs(
-        self, schema: dict[str, str], date_format: str
+        self,
+        schema: dict[str, str],
+        date_cols: list[str],
     ) -> pd.DataFrame:
         """
         Read the transaction logs from the file and return a DataFrame.
@@ -38,9 +40,10 @@ class BaseFormatter:
         Parameters
         ----------
         schema : dict[str, str]
-            The schema to use when reading the transaction logs.
-        date_format : str
-            The date format to use when parsing dates.
+            The schema to use when reading the transaction logs. Should not
+            include columns listed in date_cols.
+        date_cols : list[str]
+            The list of columns to convert to datetime.
 
         Returns
         -------
@@ -49,11 +52,18 @@ class BaseFormatter:
 
         """
         try:
-            return pd.read_csv(
+            trans_log = pd.read_csv(
                 self.file_path,
                 dtype=schema,
-                parse_dates=True,
-                date_format=date_format,
+                parse_dates=date_cols,
             )
+            trans_log[date_cols] = trans_log[date_cols].apply(
+                pd.to_datetime
+            )
+
         except Exception:
-            self.log.exception("Error reading transaction logs")
+            self.log.exception("Error reading transaction logs:")
+
+        else:
+            self.log.info("Successfully read transaction log!")
+            return trans_log

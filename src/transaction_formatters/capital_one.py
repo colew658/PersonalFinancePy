@@ -4,7 +4,7 @@ import logging
 
 import pandas as pd
 
-from src.transaction_formatters.base_formatter import BaseFormatter
+from transaction_formatters.base_formatter import BaseFormatter
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -35,15 +35,13 @@ class CapitalOneFormatter(BaseFormatter):
         self.logger = logger
         self.cap_one_df = self._read_transaction_logs(
             schema={
-                "Transaction Date": "datetime64[ns]",
-                "Posted Date": "datetime64[ns]",
                 "Card No.": "Int64",
                 "Description": "str",
                 "Category": "str",
                 "Debit": "float64",
                 "Credit": "float64",
             },
-            date_format="%Y-%m-%d",
+            date_cols=["Transaction Date", "Posted Date"],
         )
 
     def format_cap_one_logs(self, keep_credits: str) -> pd.DataFrame:
