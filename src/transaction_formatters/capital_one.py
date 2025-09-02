@@ -44,14 +44,9 @@ class CapitalOneFormatter(BaseFormatter):
             date_cols=["Transaction Date", "Posted Date"],
         )
 
-    def format_cap_one_logs(self, keep_credits: str) -> pd.DataFrame:
+    def format_cap_one_logs(self) -> pd.DataFrame:
         """
         Format the transaction logs for Capital One.
-
-        Parameters
-        ----------
-        keep_credits : str
-            Whether to keep credit transactions in the DataFrame (y/n).
 
         Returns
         -------
@@ -59,11 +54,41 @@ class CapitalOneFormatter(BaseFormatter):
             The formatted DataFrame containing the transaction logs.
 
         """
-        if keep_credits == "n":
-            # Remove credit transactions
-            self.cap_one_df = self.cap_one_df[
-                (self.cap_one_df["Credit"] == 0)
-                | (self.cap_one_df["Credit"].isna())
+        # Remove credit transactions
+        self.cap_one_df = self.cap_one_df[
+            (self.cap_one_df["Credit"] == 0)
+            | (self.cap_one_df["Credit"].isna())
+        ]
+
+        # Insert blank columns for category and subcategory
+        self.cap_one_df["category"] = ""
+        self.cap_one_df["subcategory"] = ""
+
+        # Insert payment_type
+        self.cap_one_df["payment_type"] = "Venture"
+
+        # Drop unneeded columns
+        self.cap_one_df = self.cap_one_df[
+            [
+                "Posted Date",
+                "category",
+                "subcategory",
+                "Debit",
+                "payment_type",
+                "Description",
             ]
+        ]
+
+        # Rename columns to match expected output
+        self.cap_one_df = self.cap_one_df.rename(
+            columns={
+                "Posted Date": "date",
+                "category": "category",
+                "subcategory": "subcategory",
+                "Debit": "amount",
+                "payment_type": "payment_type",
+                "Description": "note",
+            }
+        )
 
         return self.cap_one_df
