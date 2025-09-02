@@ -1,5 +1,6 @@
 """Utils functions to help with file operations."""
 
+import logging
 from calendar import month_name
 from pathlib import Path
 
@@ -101,3 +102,17 @@ def bold_totals(report_wb: xlsxwriter.Workbook) -> xlsxwriter.Workbook:
             worksheet.set_row(num_rows, None, bold_format)
 
     return report_wb
+
+
+def setup_logging() -> logging.Logger:
+    """
+    Set up a basic Logger.
+
+    Returns
+    -------
+    logging.Logger
+        The logger instance.
+
+    """
+    logging.basicConfig(level=logging.INFO)
+    return logging.getLogger(__name__)
