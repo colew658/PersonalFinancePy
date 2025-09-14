@@ -61,21 +61,21 @@ class CapitalOneFormatter(BaseFormatter):
             The formatted DataFrame containing the transaction logs.
 
         """
+        format_df = self.cap_one_df.copy()
         # Remove credit transactions
-        self.cap_one_df = self.cap_one_df[
-            (self.cap_one_df["Credit"] == 0)
-            | (self.cap_one_df["Credit"].isna())
+        format_df = format_df[
+            (format_df["Credit"] == 0) | (format_df["Credit"].isna())
         ]
 
         # Insert blank columns for category and subcategory
-        self.cap_one_df["category"] = ""
-        self.cap_one_df["subcategory"] = ""
+        format_df["category"] = ""
+        format_df["subcategory"] = ""
 
         # Insert payment_type
-        self.cap_one_df["payment_type"] = "Venture"
+        format_df["payment_type"] = "Venture"
 
         # Drop unneeded columns
-        self.cap_one_df = self.cap_one_df[
+        format_df = format_df[
             [
                 "Posted Date",
                 "category",
@@ -87,7 +87,7 @@ class CapitalOneFormatter(BaseFormatter):
         ]
 
         # Rename columns to match expected output
-        self.cap_one_df = self.cap_one_df.rename(
+        format_df = format_df.rename(
             columns={
                 "Posted Date": "date",
                 "Debit": "amount",
@@ -95,4 +95,5 @@ class CapitalOneFormatter(BaseFormatter):
             }
         )
 
-        return self.cap_one_df
+        self.cap_one_formatted_df = format_df
+        return self.cap_one_formatted_df

@@ -57,18 +57,19 @@ class DiscoverFormatter(BaseFormatter):
             The formatted DataFrame containing the transaction logs.
 
         """
+        format_df = self.discover_df.copy()
         # Remove credit transactions (which are negative in Discover data)
-        self.discover_df = self.discover_df[self.discover_df["Amount"] > 0]
+        format_df = format_df[format_df["Amount"] > 0]
 
         # Insert blank columns for category and subcategory
-        self.discover_df["category"] = ""
-        self.discover_df["subcategory"] = ""
+        format_df["category"] = ""
+        format_df["subcategory"] = ""
 
         # Insert payment_type
-        self.discover_df["payment_type"] = "Discover"
+        format_df["payment_type"] = "Discover"
 
         # Keep only relevant columns and rename them
-        self.discover_df = self.discover_df[
+        format_df = format_df[
             [
                 "Post Date",
                 "category",
@@ -79,7 +80,7 @@ class DiscoverFormatter(BaseFormatter):
             ]
         ]
 
-        self.discover_df = self.discover_df.rename(
+        format_df = format_df.rename(
             columns={
                 "Post Date": "date",
                 "Amount": "amount",
@@ -87,4 +88,5 @@ class DiscoverFormatter(BaseFormatter):
             },
         )
 
-        return self.discover_df
+        self.discover_formatted_df = format_df
+        return self.discover_formatted_df
