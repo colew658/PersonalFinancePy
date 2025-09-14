@@ -34,6 +34,7 @@ class CapitalOneFormatter(BaseFormatter):
         super().__init__(file_path)
         self.logger = logger
         self.cap_one_df = self._read_transaction_logs(
+            # Schema does not include date columns
             schema={
                 "Card No.": "Int64",
                 "Description": "str",

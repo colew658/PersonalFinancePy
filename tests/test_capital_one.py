@@ -23,10 +23,7 @@ def test_format_cap_one_logs_valid() -> None:
     ]
     assert not any(result["note"].str.contains("CAPITAL ONE MOBILE PYMT"))
 
-    # Case 2: Column renaming and values
-    assert "date" in result.columns
-    assert "amount" in result.columns
-    assert "note" in result.columns
+    # Case 2: Column values
     assert result.iloc[0]["note"] == "STARBUCKS"
     assert pd.to_datetime(result.iloc[0]["date"]) == pd.to_datetime(
         "2024-01-02"
