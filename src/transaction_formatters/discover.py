@@ -1,4 +1,4 @@
-"""Transaction log formatter for Capital One data."""
+"""Transaction log formatter for Discover data."""
 
 import logging
 
@@ -10,9 +10,9 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-class CapitalOneFormatter(BaseFormatter):
+class DiscoverFormatter(BaseFormatter):
     """
-    Formats transaction logs for Capital One data.
+    Formats transaction logs for Discover data.
 
     Parameters
     ----------
@@ -23,7 +23,7 @@ class CapitalOneFormatter(BaseFormatter):
 
     def __init__(self, file_path: str) -> None:
         """
-        Initialize the CapitalOneFormatter object.
+        Initialize the DiscoverFormatter object.
 
         Parameters
         ----------
@@ -38,31 +38,27 @@ class CapitalOneFormatter(BaseFormatter):
         """
         super().__init__(file_path)
         self.logger = logger
-        self.cap_one_df = self._read_transaction_logs(
+        self.discover_df = self._read_transaction_logs(
             # Schema does not include date columns
             schema={
-                "Card No.": "Int64",
                 "Description": "str",
+                "Amount": "float64",
                 "Category": "str",
-                "Debit": "float64",
-                "Credit": "float64",
             },
-            date_cols=["Transaction Date", "Posted Date"],
+            date_cols=["Trans. Date", "Post Date"],
         )
 
-        if self.cap_one_df is None:
-            self.logger.error(
-                "Failed to read Capital One transaction logs."
-            )
+        if self.discover_df is None:
+            self.logger.error("Failed to read Discover transaction logs.")
             msg = f"""
-            Failed to read Capital One transaction logs from file:
+            Failed to read Discover transaction logs from file:
             {file_path}
             """
             raise ValueError(msg)
 
-    def format_cap_one_logs(self) -> pd.DataFrame:
+    def format_discover_logs(self) -> pd.DataFrame:
         """
-        Format the transaction logs for Capital One.
+        Format the transaction logs for Discover.
 
         Returns
         -------
@@ -70,39 +66,36 @@ class CapitalOneFormatter(BaseFormatter):
             The formatted DataFrame containing the transaction logs.
 
         """
-        format_df = self.cap_one_df.copy()
-        # Remove credit transactions
-        format_df = format_df[
-            (format_df["Credit"] == 0) | (format_df["Credit"].isna())
-        ]
+        format_df = self.discover_df.copy()
+        # Remove credit transactions (which are negative in Discover data)
+        format_df = format_df[format_df["Amount"] > 0]
 
         # Insert blank columns for category and subcategory
         format_df["category"] = ""
         format_df["subcategory"] = ""
 
         # Insert payment_type
-        format_df["payment_type"] = "Venture"
+        format_df["payment_type"] = "Discover"
 
-        # Drop unneeded columns
+        # Keep only relevant columns and rename them
         format_df = format_df[
             [
-                "Posted Date",
+                "Post Date",
                 "category",
                 "subcategory",
-                "Debit",
+                "Amount",
                 "payment_type",
                 "Description",
             ]
         ]
 
-        # Rename columns to match expected output
         format_df = format_df.rename(
             columns={
-                "Posted Date": "date",
-                "Debit": "amount",
+                "Post Date": "date",
+                "Amount": "amount",
                 "Description": "note",
-            }
+            },
         )
 
-        self.cap_one_formatted_df = format_df
-        return self.cap_one_formatted_df
+        self.discover_formatted_df = format_df
+        return self.discover_formatted_df
