@@ -30,6 +30,11 @@ class CapitalOneFormatter(BaseFormatter):
         file_path : str
             The path to the CSV file containing the transaction logs.
 
+        Raises
+        ------
+        ValueError
+            If the transaction logs cannot be read from the file path.
+
         """
         super().__init__(file_path)
         self.logger = logger
@@ -49,7 +54,11 @@ class CapitalOneFormatter(BaseFormatter):
             self.logger.error(
                 "Failed to read Capital One transaction logs."
             )
-            return
+            msg = f"""
+            Failed to read Capital One transaction logs from file:
+            {file_path}
+            """
+            raise ValueError(msg)
 
     def format_cap_one_logs(self) -> pd.DataFrame:
         """
